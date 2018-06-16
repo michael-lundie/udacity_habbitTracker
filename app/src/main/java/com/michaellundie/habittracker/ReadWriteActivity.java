@@ -24,14 +24,14 @@ public class ReadWriteActivity extends AppCompatActivity{
         setContentView(R.layout.activity_read_write);
 
         dbHelper = new TaskDbHelper(this);
-        readTask(null, null);
+        readTask();
 
         final Button insertData = (Button) findViewById(R.id.button_insert);
         insertData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 insertTask();
-                readTask(null, null);
+                readTask();
             }
         });
 
@@ -40,7 +40,7 @@ public class ReadWriteActivity extends AppCompatActivity{
             @Override
             public void onClick(View view) {
                 removeAllTasks();
-                readTask(null, null);
+                readTask();
             }
         });
     }
@@ -75,34 +75,10 @@ public class ReadWriteActivity extends AppCompatActivity{
     /**
      * A simple method to read data currently held in the database.
      * The code includes a cursor iterator for testing purposes.
-     * @param whereColumns optional WHERE (column id) SQL argument
-     * @param whereValues option WHERE values SQL argument
      */
-    private void readTask(String whereColumns, String whereValues[]) {
+    private void readTask() {
 
-        // Create or open a readable database using our dbHelper object.
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-
-        // Define a projection that specifies required columns from database
-        String[] projection = {
-                TaskEntry._ID,
-                TaskEntry.COLUMN_TASK_TITLE,
-                TaskEntry.COLUMN_TASK_PRIORITY,
-                TaskEntry.COLUMN_TASK_SETTIME,
-                TaskEntry.COLUMN_TASK_ALLOCTIME };
-
-        // Execute read query on the tasks table.
-        Cursor cursor = null;
-
-
-            cursor = db.query(
-                    TaskEntry.TABLE_NAME,   // The table to query
-                    projection,            // The columns to return
-                    whereColumns,                  // The columns for the WHERE clause
-                    whereValues,                  // The values for the WHERE clause
-                    null,                  // Don't group the rows
-                    null,                  // Don't filter by row groups
-                    null);                   // The sort order
+        Cursor cursor = read(null, null);
 
         TextView viewDataInfo = (TextView) findViewById(R.id.text_test);
 
@@ -150,6 +126,37 @@ public class ReadWriteActivity extends AppCompatActivity{
             // resources and makes it invalid.
             cursor.close();
         }
+    }
+
+    /**
+     * A simple method returning a cursor object.
+     * @param whereColumns optional WHERE (column id) SQL argument
+     * @param whereValues option WHERE values SQL argument
+     * @return Cursor object
+     */
+    private Cursor read(String whereColumns, String whereValues[]) {
+        // Create or open a readable database using our dbHelper object.
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        // Define a projection that specifies required columns from database
+        String[] projection = {
+                TaskEntry._ID,
+                TaskEntry.COLUMN_TASK_TITLE,
+                TaskEntry.COLUMN_TASK_PRIORITY,
+                TaskEntry.COLUMN_TASK_SETTIME,
+                TaskEntry.COLUMN_TASK_ALLOCTIME};
+
+        // Execute read query on the tasks table.
+
+        Cursor cursor = db.query(
+                TaskEntry.TABLE_NAME,   // The table to query
+                projection,            // The columns to return
+                whereColumns,                  // The columns for the WHERE clause
+                whereValues,                  // The values for the WHERE clause
+                null,                  // Don't group the rows
+                null,                  // Don't filter by row groups
+                null);                   // The sort order
+        return cursor;
     }
 
     /**
